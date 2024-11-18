@@ -79,8 +79,9 @@ RUN \
 
 WORKDIR "serve"
 
+COPY ./ts_scripts /serve/ts_scripts
+
 RUN cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
-RUN cp ts_scripts /serve/
 
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
@@ -95,6 +96,9 @@ RUN \
     else \
         python /serve/ts_scripts/install_dependencies.py; \
     fi
+
+RUN \
+    rm -rf /serve/ts_scripts
 
 # Make sure latest version of torchserve is uploaded before running this
 RUN \
