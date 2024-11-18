@@ -16,7 +16,7 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=nvidia/cuda:12.1.0-base-ubuntu20.04
 
 # Note:
 # Define here the default python version to be used in all later build-stages as default.
@@ -25,15 +25,15 @@ ARG BASE_IMAGE=ubuntu:rolling
 # that don't let the build fail, but break current version handling logic and result
 # in images with wrong python version. To fix that, we will restate the ARG PYTHON_VERSION
 # on each build-stage.
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=nvidia/cuda:12.1.0-base-ubuntu20.04
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
 ARG BUILD_FROM_SRC
 ARG LOCAL_CHANGES
-ARG BRANCH_NAME
+ARG BRANCH_NAME=master
 ARG REPO_URL=https://github.com/pytorch/serve.git
 ENV PYTHONUNBUFFERED TRUE
 
@@ -66,7 +66,7 @@ RUN python -m pip install -U pip setuptools
 # This is only useful for cuda env
 RUN export USE_CUDA=1
 
-ARG USE_CUDA_VERSION=""
+ARG USE_CUDA_VERSION="cu121"
 
 COPY ./ serve
 
