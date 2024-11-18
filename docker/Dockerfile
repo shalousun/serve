@@ -80,6 +80,7 @@ RUN \
 WORKDIR "serve"
 
 COPY ./ts_scripts /serve/ts_scripts
+COPY ./requirements /serve/requirements
 
 RUN cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
@@ -97,19 +98,23 @@ RUN \
         python /serve/ts_scripts/install_dependencies.py; \
     fi
 
-RUN \
-    rm -rf /serve/ts_scripts
+
 
 # Make sure latest version of torchserve is uploaded before running this
 RUN \
     if echo "$BUILD_FROM_SRC" | grep -q "true"; then \
-        python -m pip install -r requirements/developer.txt;\
-        python ts_scripts/install_from_src.py;\
+        python -m pip install -r /serve/requirements/developer.txt;\
+        python /serve/ts_scripts/install_from_src.py;\
     elif echo "$BUILD_NIGHTLY" | grep -q "false"; then \
         python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
     else \
         python -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
     fi
+
+
+RUN \
+    rm -rf /serve/ts_scripts \
+    && rm -rf /serve/requirements \
 
 # Final image for production
 FROM ${BASE_IMAGE} AS production-image
@@ -145,7 +150,7 @@ ENV PATH="/home/venv/bin:$PATH"
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server
 
-COPY docker/config.properties /home/model-server/config.properties
+COPY config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
 EXPOSE 8080 8081 8082 7070 7071
