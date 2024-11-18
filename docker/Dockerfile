@@ -79,7 +79,7 @@ RUN \
 
 WORKDIR "serve"
 
-RUN cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+RUN cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
@@ -249,10 +249,10 @@ RUN python -m pip install -U pip setuptools \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
-    && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
+    && cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server \
-    && cp docker/config.properties /home/model-server/config.properties \
+    && cp config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
     && chown -R model-server /home/venv
 EXPOSE 8080 8081 8082 7070 7071
