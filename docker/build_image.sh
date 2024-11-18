@@ -21,6 +21,8 @@ PYTHON_VERSION=3.9
 ARCH="linux/arm64,linux/amd64"
 MULTI=false
 
+export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+
 for arg in "$@"
 do
     case $arg in
