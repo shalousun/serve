@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:experimental
+# docker/dockerfile:experimental
 #
 # This file can build images for cpu and gpu env. By default it builds image for CPU.
 # Use following option to build image for cuda/GPU: --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
@@ -113,8 +113,7 @@ RUN \
 
 
 RUN \
-    rm -rf /serve/ts_scripts \
-    && rm -rf /serve/requirements \
+    rm -rf /serve/ts_scripts && rm -rf /serve/requirements
 
 # Final image for production
 FROM ${BASE_IMAGE} AS production-image
