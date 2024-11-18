@@ -242,7 +242,10 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./ serve
+COPY ./requirements /serve/requirements
+COPY dockerd-entrypoint.sh /serve/dockerd-entrypoint.sh
+COPY config.properties /serve/config.properties
+
 
 RUN \
     if echo "$LOCAL_CHANGES" | grep -q "false"; then \
@@ -254,7 +257,7 @@ COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"
 RUN python -m pip install -U pip setuptools \
-    && python -m pip install --no-cache-dir -r requirements/developer.txt \
+    && python -m pip install --no-cache-dir -r /serve/requirements/developer.txt \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
@@ -263,7 +266,9 @@ RUN python -m pip install -U pip setuptools \
     && chown -R model-server /home/model-server \
     && cp config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
-    && chown -R model-server /home/venv
+    && chown -R model-server /home/venv \
+    && rm -rf /serve/*
+
 EXPOSE 8080 8081 8082 7070 7071
 USER model-server
 WORKDIR /home/model-server
