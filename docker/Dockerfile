@@ -31,7 +31,7 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=nvidia/cuda:12.1.0-base-ubuntu20.04
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
-ARG BUILD_FROM_SRC
+ARG BUILD_FROM_SRC=false
 ARG LOCAL_CHANGES
 ARG BRANCH_NAME=master
 ARG REPO_URL=https://github.com/pytorch/serve.git
@@ -242,6 +242,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
     && rm -rf /var/lib/apt/lists/*
 
+COPY ./ts_scripts /serve/ts_scripts
 COPY ./requirements /serve/requirements
 COPY dockerd-entrypoint.sh /serve/dockerd-entrypoint.sh
 COPY config.properties /serve/config.properties
@@ -258,7 +259,7 @@ ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r /serve/requirements/developer.txt \
-    && python ts_scripts/install_from_src.py \
+    && python /serve/ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
